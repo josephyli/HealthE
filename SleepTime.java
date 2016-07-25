@@ -1,4 +1,6 @@
-package healthE;
+package healthe;
+
+import java.sql.Date;
 
 /**
  *
@@ -6,7 +8,8 @@ package healthE;
  */
 
 public class SleepTime {
-    Integer hours;
+    private Integer hours;
+    private Date aDate;
 
     public Integer getHours() {
         return hours;
@@ -16,8 +19,9 @@ public class SleepTime {
         this.hours = hours;
     }
 
-    public sleepTime(Integer hours) {
+    public SleepTime(Date aDate, Integer hours) {
+        this.aDate = aDate;
         this.hours = hours;
-	 }
+    }
     
 }

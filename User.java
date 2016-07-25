@@ -1,9 +1,7 @@
-package healthE;
+package healthe;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
 import java.sql.Date;
 import javax.naming.NamingException;
 
@@ -12,8 +10,6 @@ import javax.naming.NamingException;
  *
  * @author team alpha
  */
-@ManagedBean(name = "User")
-@SessionScoped
 public class User implements Serializable {
     Integer hours;
 	 Date aDate;

@@ -1,24 +1,20 @@
+package healthe;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package healthE;
+
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.context.FacesContext;
 import javax.naming.NamingException;
-import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import org.postgresql.ds.PGPoolingDataSource;
 
@@ -27,8 +23,7 @@ import org.postgresql.ds.PGPoolingDataSource;
  *
  * @author team alpha
  */
-@ManagedBean(name = "UserBean")
-@SessionScoped
+
 public class UserBean implements Serializable {
     String name;
     Integer hours;
@@ -39,7 +34,6 @@ public class UserBean implements Serializable {
     private DataSource ds;
     List<User> userNameList;
     
-    @ManagedProperty(value="#{StuffBean}")
     private SleepTime sleepTime;
         
     public SleepTime getSleepTime() {
@@ -64,11 +58,11 @@ public class UserBean implements Serializable {
 
     public void setUserName(String a) {
         
-        this.userName = a;
+        this.name = a;
     }
     
     public String getUserName() {
-        return userName;
+        return name;
     }
 
     
@@ -86,8 +80,8 @@ public class UserBean implements Serializable {
     public static DataSource getDS() throws SQLException {
         PGPoolingDataSource ds = new PGPoolingDataSource();
 
-        ds.setDatabaseName("josephli");
-        ds.setUser("josephli");
+        ds.setDatabaseName("teamalpha");
+        ds.setUser("teamalpha");
         ds.setServerName("localhost");
         ds.setPortNumber(5432);
 
@@ -108,22 +102,23 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String query = "SELECT * FROM PLAYER ORDER BY name ASC";
+            String query = "SELECT * FROM USER ORDER BY name ASC";
             
             stmt = con.prepareStatement(query);
 
             //get data from database
             ResultSet result = stmt.executeQuery();
             
-            while(result.next()){
-                User user = new User(result.getString("name"), 
-                                                result.getInt("strength"),
-                                                result.getInt("brains"),
-                                                result.getInt("worth"),
-                                                result.getInt("num_of_classes"));
-
-                userNameList.add(user);
-            }
+//            while(result.next()){
+//                User user;
+//                user = new User(result.getString("name"), 
+//                        result.getInt("strength"),
+//                        result.getInt("brains"),
+//                        result.getInt("worth"),
+//                        result.getInt("num_of_classes"));
+//
+//                userNameList.add(user);
+//            }
             con.close();
         }
         catch (Exception SQLException) {
@@ -143,71 +138,42 @@ public class UserBean implements Serializable {
      * @throws javax.naming.NamingException
      */
     public UserBean() throws SQLException, NamingException{
-        userName = "";
-        strength = 1;
-        brains = 1;
-        worth = 10;
-        num_of_classes = 0;
-        graduated = false;
-        System.out.println("Strength: " + strength);
-        System.out.println("Brains: " + brains);
-        System.out.println("Self-esteem: " + worth);
-        System.out.println("Credits: " + num_of_classes);
+        name = "";
+        
     }
 
     public void invalidate() throws SQLException, NamingException {
 //        FacesContext context = FacesContext.getCurrentInstance();
 //        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
 //        session.invalidate();
-        enemyBean.getRandomEnemy(num_of_classes);
+
     }
     
     public String logout() throws SQLException, NamingException {
         saveUser();
-        FacesContext context = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
-        session.invalidate();
+        
         return "index";
     }
     
     public String altLogout() throws SQLException, NamingException {
         saveUser();
-        FacesContext context = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
-        session.invalidate();
         return "";
     }
     public String login() throws SQLException, NamingException {
         boolean nameFound = false;
-        success = false;
-        notEnough = false;
-        graduated = false;
-        if (userName != null) {
+        
+        if (name != null) {
             for (int i = 0; i < userNameList.size(); i++) {
                 User userx = userNameList.get(i);
-                if(userx.getUserName().equals(userName)) {
-                    System.out.println(userx.getUserName());
-                    userName = userx.getUserName();
-                    strength = userx.getStrength();
-                    brains = userx.getBrains();
-                    worth = userx.getSelfEsteem();
-                    num_of_classes = userx.getNum_of_classes();
+                if(userx.getName().equals(name)) {
+                    System.out.println(userx.getName());
+                    name = userx.getName();
                     nameFound = true;
-                    if (num_of_classes >= 50) {
-                        graduated = true;
-                        enemyBean.getRandomEnemy(num_of_classes);
-                    }
-                    else {
-                        enemyBean.getRandomEnemy(num_of_classes);
-                    }
                 }
             }
         }
         if (nameFound == false) {
-            strength = 1;
-            brains = 1;
-            worth = 1;
-            num_of_classes = 0;
+        
             newUser();
         }
         return "play";
@@ -225,14 +191,11 @@ public class UserBean implements Serializable {
                 throw new SQLException("Can't get database connection");
 
             String s = "UPDATE user "
-                    + "SET strength = ?, brains = ?, worth = ?, num_of_classes = ? "
+                    + "SET hours = ? "
                     + "WHERE name=?;";
             PreparedStatement ps = con.prepareStatement(s); 
-            ps.setInt(1, strength);
-            ps.setInt(2, brains);
-            ps.setInt(3, worth);
-            ps.setInt(4, num_of_classes);
-            ps.setString(5, userName);            
+            ps.setInt(1, hours);
+            ps.setString(2, name);            
             
             ps.executeUpdate();
             System.out.println("Values updated");
@@ -254,14 +217,10 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String s = "INSERT INTO user(name, strength,brains,worth,num_of_classes) "
-                    + "values(?, ?, ?, ?, ?);";
+            String s = "INSERT INTO user(name) "
+                    + "values(?);";
             PreparedStatement ps = con.prepareStatement(s); 
-            ps.setString(1, userName);
-            ps.setInt(2, strength);
-            ps.setInt(3, brains);
-            ps.setInt(4, worth);
-            ps.setInt(5, num_of_classes);
+            ps.setString(1, name);
             
             
             ps.executeUpdate();
@@ -273,50 +232,11 @@ public class UserBean implements Serializable {
         }
     }
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public boolean isNotEnough() {
-        return notEnough;
-    }
-
-    public void setNotEnough(boolean notEnough) {
-        this.notEnough = notEnough;
-    }
     
-    public String play() throws SQLException, NamingException {
+    public String addData() throws SQLException, NamingException {
+        // sleep data
         saveUser();
-        notEnough = false;
-        success = false;
         return "play";
     }
-    public void doStuff() throws SQLException, NamingException {
-        success = false;
-        notEnough = false;
-        Stuff selectedStuff = stuff.getStuff(action);
-        System.out.print("Action: " + action);
-        String query = "SELECT * FROM STUFF WHERE NAME='" + action + "' ;";
-        stuff.getStuff(query);
-        if (worth >= stuff.worth) {
-            setStrength(strength + stuff.strength);
-            setBrains(brains + stuff.brains);
-            setNum_of_classes(num_of_classes + stuff.num_of_classes);
-            setWorth(worth - stuff.worth);
-            System.out.print( action + " was purchased.");
-            saveUser();
-            success = true;
-            if (num_of_classes >= 50) {
-                graduated = true;
-                enemyBean.getRandomEnemy(num_of_classes);
-            }
-        }
-        else {
-            notEnough = true;
-        }
-    }     
+    
 }
