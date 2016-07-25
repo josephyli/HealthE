@@ -46,17 +46,15 @@ public class UserBean implements Serializable {
     private static DataSource getDS() throws SQLException {
         PGPoolingDataSource ds = new PGPoolingDataSource();
 
-        ds.setDatabaseName("teamalpha");
-        ds.setUser("teamalpha");
+        ds.setDatabaseName("postgres");
+        ds.setUser("josephli");
         ds.setServerName("localhost");
         ds.setPortNumber(5432);
 
         return ds;
     }
     
-    private boolean checkUser(String name, String password) throws SQLException, NamingException {
-        System.out.println("Get user list");
-        List<User> userNameList = new ArrayList<User>();
+    public boolean checkUser(String name, String password) throws SQLException, NamingException {
         PreparedStatement stmt = null;
         boolean nameFound = false;
         try {
@@ -64,36 +62,34 @@ public class UserBean implements Serializable {
             if(ds==null)
                 throw new SQLException("Can't get data source");
 
-            //connect to database 
-            Connection con = ds.getConnection();
-            if(con==null)
-                throw new SQLException("Can't get database connection");
-
-            String query = "SELECT * FROM \"Users\" WHERE name = ? AND password = ?";
-            stmt = con.prepareStatement(query);
-
-            stmt.setString(1, name);
-            stmt.setString(2, password);
-            
-            ResultSet result = stmt.executeQuery();
-            
-            while(result.next()){
-                if (result.getString("name")==name && result.getString("password")==password) {
+            try ( //connect to database
+                    Connection con = ds.getConnection()) {
+                if(con==null)
+                    throw new SQLException("Can't get database connection");
+                
+                String query = "SELECT * FROM \"Users\" WHERE name = ? AND password = ?";
+                stmt = con.prepareStatement(query);
+                
+                stmt.setString(1, name);
+                stmt.setString(2, password);
+                
+                ResultSet result = stmt.executeQuery();
+                
+                while(result.next()){
                     nameFound = true;
-                    break;
+                    System.out.println("Found");
+                    break;                    
                 }
-
             }
-            con.close();
         }
         catch (Exception SQLException) {
-            
+            System.err.println("SQL exception caught");
         }
         finally {
             if (stmt!=null)
                 stmt.close();
         }
-        System.out.println("Not found");
+        
             
         return nameFound;
         
@@ -148,15 +144,6 @@ public class UserBean implements Serializable {
         
     }
     
-    public void login(String name, String password) throws SQLException, NamingException {
-        if (checkUser(name, password)) {
-            // log in success!
-        } else {
-            // error!
-        }
-        
-        
-    }
 
     private void updateUserPassword(String name, String password) throws SQLException, NamingException{
         
