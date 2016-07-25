@@ -69,8 +69,7 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String query = "SELECT ? FROM users WHERE password == ?";
-            String query1 = "SELECT * FROM \"Users\" WHERE name = 'test' AND password = 'test';";
+            String query = "SELECT * FROM \"Users\" WHERE name = ? AND password = ?";
             stmt = con.prepareStatement(query);
 
             stmt.setString(1, name);
@@ -114,7 +113,7 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String query = "SELECT * FROM USERS ORDER BY name ASC";
+            String query = "SELECT * FROM \"Users\" ORDER BY name ASC";
             
             stmt = con.prepareStatement(query);
 
@@ -170,7 +169,7 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String s = "UPDATE user "
+            String s = "UPDATE \"Users\" "
                     + "SET password = ? "
                     + "WHERE name=?;";
             PreparedStatement ps = con.prepareStatement(s); 
@@ -197,7 +196,7 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String s = "INSERT INTO users(name, password) "
+            String s = "INSERT INTO \"Users\"(name, password) "
                     + "values(?, ?);";
             PreparedStatement ps = con.prepareStatement(s); 
             ps.setString(1, name);
@@ -219,7 +218,7 @@ public class UserBean implements Serializable {
             throw new SQLException("Can't get database connection");
         Statement s = con.createStatement();
            try {
-               String s1 = ("DROP TABLE User");
+               String s1 = ("DROP TABLE \"Users\"");
                s.executeUpdate(s1);
                System.out.println("Table dropped");
            }
@@ -234,7 +233,7 @@ public class UserBean implements Serializable {
             throw new SQLException("Can't get database connection");
         Statement s = con.createStatement();
         try {
-            String s2 = ("CREATE TABLE User ("
+            String s2 = ("CREATE TABLE \"Users\" ("
                 + "name text not null primary key, "
                 + "password text not null)");
             s.executeUpdate(s2);
