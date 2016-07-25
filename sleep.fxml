@@ -8,7 +8,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="618.0" prefWidth="663.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="login.SleepController">
+<AnchorPane id="AnchorPane" prefHeight="618.0" prefWidth="663.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="healthe.SleepController">
    <children>
       <LineChart fx:id="sleepChart" animated="false" layoutX="82.0" layoutY="14.0" title="Sleep Chart">
         <xAxis>
