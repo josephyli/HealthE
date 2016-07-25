@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="618.0" prefWidth="663.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="login.SleepController">
+   <children>
+      <LineChart fx:id="sleepChart" animated="false" layoutX="82.0" layoutY="14.0" title="Sleep Chart">
+        <xAxis>
+          <CategoryAxis label="Date" side="BOTTOM" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis label="Hours slept" side="LEFT" />
+        </yAxis>
+      </LineChart>
+      <Button fx:id="generate" layoutX="269.0" layoutY="560.0" mnemonicParsing="false" onAction="#Generate" text="Generate Graph" />
+      <TextField fx:id="date" layoutX="351.0" layoutY="433.0" promptText="MM/DD/YY" />
+      <TextField fx:id="hours" layoutX="351.0" layoutY="495.0" promptText="Hours" />
+      <Label fx:id="lblDate" layoutX="152.0" layoutY="438.0" prefHeight="21.0" prefWidth="117.0" text="Enter Date Here:" />
+      <Label fx:id="lblHours" layoutX="152.0" layoutY="500.0" prefHeight="21.0" prefWidth="164.0" text="Enter Hours Slept Here:" />
+   </children>
+</AnchorPane>
