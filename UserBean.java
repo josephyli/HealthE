@@ -8,10 +8,10 @@ package healthe;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.naming.NamingException;
@@ -25,14 +25,8 @@ import org.postgresql.ds.PGPoolingDataSource;
  */
 
 public class UserBean implements Serializable {
-    String name;
-    Integer hours;
-    Date aDate;
-    boolean success;
-    boolean notEnough;
     
     private DataSource ds;
-    List<User> userNameList;
     
     private SleepTime sleepTime;
         
@@ -40,13 +34,6 @@ public class UserBean implements Serializable {
         return sleepTime;
     }
 
-    public Integer getHours() {
-        return hours;
-    }
-
-    public void setHours(Integer hours) {
-        this.hours = hours;
-    }
 
     public void setSleepTime(SleepTime sleepTime) {
         this.sleepTime = sleepTime;
@@ -55,29 +42,8 @@ public class UserBean implements Serializable {
     public void setDs(DataSource ds) {
         this.ds = ds;
     }
-
-    public void setUserName(String a) {
-        
-        this.name = a;
-    }
     
-    public String getUserName() {
-        return name;
-    }
-
-    
-    public static DataSource getdS() throws SQLException {
-        PGPoolingDataSource ds = new PGPoolingDataSource();
-
-        ds.setDatabaseName("users");
-        ds.setUser("ics491");
-        ds.setServerName("localhost");
-        ds.setPortNumber(5432);
-
-        return ds;
-    }
-    
-    public static DataSource getDS() throws SQLException {
+    private static DataSource getDS() throws SQLException {
         PGPoolingDataSource ds = new PGPoolingDataSource();
 
         ds.setDatabaseName("teamalpha");
@@ -88,9 +54,55 @@ public class UserBean implements Serializable {
         return ds;
     }
     
-    public List<User> getuserNameList() throws SQLException, NamingException{
+    private boolean checkUser(String name, String password) throws SQLException, NamingException {
         System.out.println("Get user list");
-        userNameList = new ArrayList<User>();
+        List<User> userNameList = new ArrayList<User>();
+        PreparedStatement stmt = null;
+        boolean nameFound = false;
+        try {
+            ds = getDS();
+            if(ds==null)
+                throw new SQLException("Can't get data source");
+
+            //connect to database 
+            Connection con = ds.getConnection();
+            if(con==null)
+                throw new SQLException("Can't get database connection");
+
+            String query = "SELECT ? FROM users WHERE password == ?";
+            String query1 = "SELECT * FROM \"Users\" WHERE name = 'test' AND password = 'test';";
+            stmt = con.prepareStatement(query);
+
+            stmt.setString(1, name);
+            stmt.setString(2, password);
+            
+            ResultSet result = stmt.executeQuery();
+            
+            while(result.next()){
+                if (result.getString("name")==name && result.getString("password")==password) {
+                    nameFound = true;
+                    break;
+                }
+
+            }
+            con.close();
+        }
+        catch (Exception SQLException) {
+            
+        }
+        finally {
+            if (stmt!=null)
+                stmt.close();
+        }
+        System.out.println("Not found");
+            
+        return nameFound;
+        
+    }
+    
+    private List<User> getUserList() throws SQLException, NamingException{
+        System.out.println("Get user list");
+        List<User>userNameList = new ArrayList<>();
         PreparedStatement stmt = null;
         try {
             ds = getDS();
@@ -102,7 +114,7 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String query = "SELECT * FROM USER ORDER BY name ASC";
+            String query = "SELECT * FROM USERS ORDER BY name ASC";
             
             stmt = con.prepareStatement(query);
 
@@ -111,11 +123,7 @@ public class UserBean implements Serializable {
             
 //            while(result.next()){
 //                User user;
-//                user = new User(result.getString("name"), 
-//                        result.getInt("strength"),
-//                        result.getInt("brains"),
-//                        result.getInt("worth"),
-//                        result.getInt("num_of_classes"));
+//                user = new User(......);
 //
 //                userNameList.add(user);
 //            }
@@ -133,53 +141,25 @@ public class UserBean implements Serializable {
         return userNameList;
     }
     /**
-     * Creates a new instance of UserNumberBean
+     * Creates a new instance of UserBean
      * @throws java.sql.SQLException
      * @throws javax.naming.NamingException
      */
     public UserBean() throws SQLException, NamingException{
-        name = "";
         
-    }
-
-    public void invalidate() throws SQLException, NamingException {
-//        FacesContext context = FacesContext.getCurrentInstance();
-//        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
-//        session.invalidate();
-
     }
     
-    public String logout() throws SQLException, NamingException {
-        saveUser();
-        
-        return "index";
-    }
-    
-    public String altLogout() throws SQLException, NamingException {
-        saveUser();
-        return "";
-    }
-    public String login() throws SQLException, NamingException {
-        boolean nameFound = false;
-        
-        if (name != null) {
-            for (int i = 0; i < userNameList.size(); i++) {
-                User userx = userNameList.get(i);
-                if(userx.getName().equals(name)) {
-                    System.out.println(userx.getName());
-                    name = userx.getName();
-                    nameFound = true;
-                }
-            }
+    public void login(String name, String password) throws SQLException, NamingException {
+        if (checkUser(name, password)) {
+            // log in success!
+        } else {
+            // error!
         }
-        if (nameFound == false) {
         
-            newUser();
-        }
-        return "play";
+        
     }
 
-    private void saveUser() throws SQLException, NamingException{
+    private void updateUserPassword(String name, String password) throws SQLException, NamingException{
         
         try {
             ds = getDS();
@@ -191,10 +171,10 @@ public class UserBean implements Serializable {
                 throw new SQLException("Can't get database connection");
 
             String s = "UPDATE user "
-                    + "SET hours = ? "
+                    + "SET password = ? "
                     + "WHERE name=?;";
             PreparedStatement ps = con.prepareStatement(s); 
-            ps.setInt(1, hours);
+            ps.setString(1, password);
             ps.setString(2, name);            
             
             ps.executeUpdate();
@@ -206,7 +186,7 @@ public class UserBean implements Serializable {
         }
     }
     
-    private void newUser() throws SQLException, NamingException{
+    private void newUser(String name, String password) throws SQLException, NamingException{
         
         try {
             ds = getDS();
@@ -217,12 +197,13 @@ public class UserBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String s = "INSERT INTO user(name) "
-                    + "values(?);";
+            String s = "INSERT INTO users(name, password) "
+                    + "values(?, ?);";
             PreparedStatement ps = con.prepareStatement(s); 
             ps.setString(1, name);
-            
-            
+            ps.setString(2, password); 
+            // need to encrypt password
+
             ps.executeUpdate();
             System.out.println("New user created");
             con.close();
@@ -232,11 +213,36 @@ public class UserBean implements Serializable {
         }
     }
 
+    public void dropTable() throws SQLException {
+        Connection con = ds.getConnection();
+        if(con==null)
+            throw new SQLException("Can't get database connection");
+        Statement s = con.createStatement();
+           try {
+               String s1 = ("DROP TABLE User");
+               s.executeUpdate(s1);
+               System.out.println("Table dropped");
+           }
+           catch (Exception SQL_Exception){
+               System.out.println("Error, table not dropped.");
+           }
+    }
     
-    public String addData() throws SQLException, NamingException {
-        // sleep data
-        saveUser();
-        return "play";
+    public void createTable() throws SQLException {
+        Connection con = ds.getConnection();
+        if(con==null)
+            throw new SQLException("Can't get database connection");
+        Statement s = con.createStatement();
+        try {
+            String s2 = ("CREATE TABLE User ("
+                + "name text not null primary key, "
+                + "password text not null)");
+            s.executeUpdate(s2);
+            System.out.println("Table created");
+        }
+        catch (Exception SQL_Exception){
+            System.out.println("Error, table not created.");
+        }
     }
     
 }

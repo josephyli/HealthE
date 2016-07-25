@@ -8,18 +8,20 @@ import java.sql.Date;
  */
 
 public class SleepTime {
-    private Integer hours;
+    private Double hours;
     private Date aDate;
+    private final String name;
 
-    public Integer getHours() {
+    public Double getHours() {
         return hours;
     }
 
-    public void setHours(Integer hours) {
+    public void setHours(Double hours) {
         this.hours = hours;
     }
 
-    public SleepTime(Date aDate, Integer hours) {
+    public SleepTime(String name, Date aDate, Double hours) {
+        this.name = name;
         this.aDate = aDate;
         this.hours = hours;
     }

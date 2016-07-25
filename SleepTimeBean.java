@@ -44,11 +44,10 @@ public class SleepTimeBean implements Serializable {
      *
      * @param hours is number of hours slept
      * @param aDate is the date of record
-     * @param now is the timestamp
      * @throws java.sql.SQLException
      * @throws javax.naming.NamingException
      */
-    public void sendSleepTime(int hours, Date aDate) throws SQLException, NamingException{
+    public void addSleepTime(String name, int hours, Date aDate) throws SQLException, NamingException{
         try {
             ds = getDS();
             if(ds==null)
@@ -58,11 +57,12 @@ public class SleepTimeBean implements Serializable {
             if(con==null)
                 throw new SQLException("Can't get database connection");
 
-            String s = "INSERT INTO SleepTime(adate,hours) "
-                    + "values(?, ?)";
+            String s = "INSERT INTO SleepTime(name,adate,hours) "
+                    + "values(?, ?, ?)";
             PreparedStatement ps = con.prepareStatement(s); 
-            ps.setDate(1, aDate);
-            ps.setInt(2, hours);
+            ps.setString(1, name);
+            ps.setDate(2, aDate);
+            ps.setInt(3, hours);
             
             ps.executeUpdate();
             System.out.println("Values inserted");
@@ -95,9 +95,11 @@ public class SleepTimeBean implements Serializable {
             throw new SQLException("Can't get database connection");
         Statement s = con.createStatement();
         try {
-            String s2 = ("CREATE TABLE SleepTime ("
-                + "adate Date not null primary key, "
-                + "hours integer)");
+            String s2 = ("Create table SleepTime\n(" +
+                        "user TEXT not null primary key,\n" +
+                        "date DATE not null,\n" +
+                        "hours NUMERIC not null\n" +
+                        ")");
             s.executeUpdate(s2);
             System.out.println("Table created");
         }
@@ -107,7 +109,7 @@ public class SleepTimeBean implements Serializable {
     }
     
 //    this method retrieves the data from the database in the form of a list
-    public List<SleepTime> getSleepTimeList() throws SQLException, NamingException{
+    private List<SleepTime> getSleepTimeList(String name) throws SQLException, NamingException{
         System.out.println("Get SleepTime list");
         List<SleepTime> list = new ArrayList<SleepTime>();
         PreparedStatement stmt = null;
@@ -121,17 +123,18 @@ public class SleepTimeBean implements Serializable {
                 if(con==null)
                     throw new SQLException("Can't get database connection");
                 
-                String query = "SELECT * FROM SleepTime ORDER BY aDate DESC";
+                String query = "SELECT * FROM SleepTime WHERE ? ORDER BY aDate DESC";
                 
                 stmt = con.prepareStatement(query);
-                
+                stmt.setString(1, name);
                 //get data from database
                 ResultSet result = stmt.executeQuery();
                 
                 int g = 0;
                 while(result.next() && g < 6){
-                    SleepTime sleep = new SleepTime(result.getDate("adate"),
-                            result.getInt("hours"));
+                    SleepTime sleep = new SleepTime(result.getString("user"), 
+                            result.getDate("adate"),
+                            result.getDouble("hours"));
                     
                     list.add(sleep);
                     g++;
