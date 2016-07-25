@@ -34,6 +34,7 @@ public class HealthE implements Serializable {
         ds.setPassword("ics491"); // need to encrypt this
         ds.setServerName("localhost");
         ds.setPortNumber(1527);
+		  ds.ssl(true);
 
         return ds;
     }

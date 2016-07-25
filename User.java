@@ -2,12 +2,8 @@ package healthE;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.Random;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpSession;
-import java.util.Calendar;
 import java.sql.Date;
 import javax.naming.NamingException;
 
@@ -19,7 +15,7 @@ import javax.naming.NamingException;
 @ManagedBean(name = "User")
 @SessionScoped
 public class User implements Serializable {
-    Integer sleepTime;
+    Integer hours;
 	 Date aDate;
 	 String name;
 	 
