@@ -108,6 +108,10 @@ public class SleepTimeBean implements Serializable {
         }
     }
     
+    
+    public List<SleepTime> getRecentSleepTime(String name) throws SQLException, NamingException{
+        return getSleepTimeList(name);
+    }
 //    this method retrieves the data from the database in the form of a list
     private List<SleepTime> getSleepTimeList(String name) throws SQLException, NamingException{
         System.out.println("Get SleepTime list");
@@ -123,7 +127,7 @@ public class SleepTimeBean implements Serializable {
                 if(con==null)
                     throw new SQLException("Can't get database connection");
                 
-                String query = "SELECT * FROM SleepTime WHERE ? ORDER BY aDate DESC";
+                String query = "SELECT * FROM SleepTime WHERE ? ORDER BY aDate DESC LIMIT 7";
                 
                 stmt = con.prepareStatement(query);
                 stmt.setString(1, name);

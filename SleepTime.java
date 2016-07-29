@@ -10,7 +10,7 @@ import java.sql.Date;
 public class SleepTime {
     private Double hours;
     private Date aDate;
-    private final String name;
+    private String name;
 
     public Double getHours() {
         return hours;
@@ -18,6 +18,10 @@ public class SleepTime {
 
     public void setHours(Double hours) {
         this.hours = hours;
+    }
+    
+    public Date aDate(){
+        return aDate;
     }
 
     public SleepTime(String name, Date aDate, Double hours) {

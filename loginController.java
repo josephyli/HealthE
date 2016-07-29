@@ -7,6 +7,7 @@ package healthe;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javax.naming.NamingException;
 
 /**
  *
@@ -39,10 +41,16 @@ public class loginController implements Initializable {
     private Button submit;
     
     
-    public void Login(ActionEvent event) throws IOException {
-        if(txtUser.getText().equals("hello") && txtPass.getText().equals("world")){
+    public void Login(ActionEvent event) throws IOException, SQLException, NamingException {
+        UserBean userBean = new UserBean();
+        String name = txtUser.getText();
+        String password = txtPass.getText();
+        
+        if(userBean.checkUser(name, password)){
             System.out.println("Login Successful");
-            Parent root = FXMLLoader.load(getClass().getResource("sleep.fxml"));        
+            User user = new User();
+            user.setName(name);
+            Parent root = FXMLLoader.load(getClass().getResource("sleep.fxml"));
             Scene scene = new Scene(root);
             Stage stage = new Stage();
             stage.setScene(scene);
