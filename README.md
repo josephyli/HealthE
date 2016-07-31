@@ -7,3 +7,5 @@ A java applet that tracks your health
 
 *Jay*: Started the code for the login and sleep tracker frames using JavaFX and Scene Builder
 
+---
+*Joseph*: Implemented test classes, ability to add data to bar graph. Connection from log in to sleep controller seems to not work…
