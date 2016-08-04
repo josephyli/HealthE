@@ -5,6 +5,7 @@
  */
 package healthe;
 
+
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -58,6 +59,27 @@ public class loginController implements Initializable {
             stage.show();
         } else {
             status.setText("Login Failed.  Invalid Username/Password");
+        }
+    }
+    
+    public void Register(ActionEvent event) throws IOException, SQLException, NamingException {
+        UserBean userBean = new UserBean();
+        String name = txtUser.getText();
+        String password = txtPass.getText();
+
+        if (userBean.checkUsernameOnly(name)) {
+            status.setText("Register Failed.  Username already exists.");
+        } else {
+            userBean.newUser(name, password);
+            System.out.println("Registration Successful");
+            User user = new User();
+            user.setName(name);
+            Parent root = FXMLLoader.load(getClass().getResource("sleep.fxml"));
+
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.show();
         }
     }
 

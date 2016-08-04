@@ -11,7 +11,8 @@
 
 <AnchorPane id="AnchorPane" prefHeight="412.0" prefWidth="484.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="healthe.loginController">
     <children>
-        <Button fx:id="button" layoutX="209.0" layoutY="332.0" onAction="#Login" text="Submit" />
+        <Button fx:id="regButton" layoutX="150.0" layoutY="332.0" onAction="#Register" text="Register" />
+        <Button fx:id="button" layoutX="250.0" layoutY="332.0" onAction="#Login" text="Login" />
         <Label fx:id="label" layoutX="126" layoutY="120" minHeight="16" minWidth="69" />
       <TextField fx:id="txtUser" layoutX="242.0" layoutY="89.0" onAction="#onEnter" promptText="Enter Username Here..." />
       <PasswordField fx:id="txtPass" layoutX="242.0" layoutY="200.0" onAction="#onEnter" promptText="Enter Password Here..." />
