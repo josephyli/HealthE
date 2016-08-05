@@ -54,6 +54,44 @@ public class UserBean implements Serializable {
         return ds;
     }
     
+    public boolean checkUsernameOnly(String name) throws SQLException {
+        PreparedStatement stmt = null;
+        boolean nameFound = false;
+        try {
+            ds = getDS();
+            if(ds==null)
+                throw new SQLException("Can't get data source");
+
+            try ( //connect to database
+                    Connection con = ds.getConnection()) {
+                if(con==null)
+                    throw new SQLException("Can't get database connection");
+                
+                String query = "SELECT * FROM \"Users\" WHERE name = ?";
+                stmt = con.prepareStatement(query);
+                
+                stmt.setString(1, name);
+                
+                ResultSet result = stmt.executeQuery();
+                
+                while(result.next()){
+                    nameFound = true;
+                    System.out.println("Found");
+                    break;                    
+                }
+            }
+        }
+        catch (Exception SQLException) {
+            System.err.println("SQL exception caught");
+        }
+        finally {
+            if (stmt!=null)
+                stmt.close();
+        }
+        
+            
+        return nameFound;
+    }
     public boolean checkUser(String name, String password) throws SQLException, NamingException {
         PreparedStatement stmt = null;
         boolean nameFound = false;
@@ -172,7 +210,7 @@ public class UserBean implements Serializable {
         }
     }
     
-    private void newUser(String name, String password) throws SQLException, NamingException{
+    void createNewUser(String name, String password) throws SQLException, NamingException{
         
         try {
             ds = getDS();
