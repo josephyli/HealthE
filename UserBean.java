@@ -92,8 +92,9 @@ public class UserBean implements Serializable {
             
         return nameFound;
     }
-    public boolean checkUser(String name, String password) throws SQLException, NamingException {
+    public String getHashedPassword(String name) throws SQLException, NamingException {
         PreparedStatement stmt = null;
+        String storedPassword = null;
         boolean nameFound = false;
         try {
             ds = getDS();
@@ -105,15 +106,15 @@ public class UserBean implements Serializable {
                 if(con==null)
                     throw new SQLException("Can't get database connection");
                 
-                String query = "SELECT * FROM \"Users\" WHERE name = ? AND password = ?";
+                String query = "SELECT password FROM \"Users\" WHERE name = ?";
                 stmt = con.prepareStatement(query);
                 
                 stmt.setString(1, name);
-                stmt.setString(2, password);
                 
                 ResultSet result = stmt.executeQuery();
                 
                 while(result.next()){
+                    storedPassword = result.getString("password");
                     nameFound = true;
                     System.out.println("Found");
                     break;                    
@@ -129,7 +130,7 @@ public class UserBean implements Serializable {
         }
         
             
-        return nameFound;
+        return storedPassword;
         
     }
     

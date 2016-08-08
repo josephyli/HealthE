@@ -53,13 +53,14 @@ public class loginController implements Initializable {
         String name = txtUser.getText();
         String originalPassword = txtPass.getText();
         String securedPassword = generateStorngPasswordHash(originalPassword);
-        boolean matched = validatePassword(originalPassword, securedPassword);
+        boolean matched = validatePassword(originalPassword, userBean.getHashedPassword(name));
 
-        if (userBean.checkUser(name, securedPassword) && matched) {
+        if (matched) {
             System.out.println("Login Successful");
             User user = new User();
             user.setName(name);
             Parent root = FXMLLoader.load(getClass().getResource("sleep.fxml"));
+            
 
             Scene scene = new Scene(root);
             Stage stage = new Stage();
@@ -112,11 +113,11 @@ public class loginController implements Initializable {
                 txtUser.requestFocus();
             }
         });
-
+        status.setText("Welcome! Please ensure your Postgres server is running");
     }
     
     ////////////////////////////////////////////////////////////////////////////
-    // Code by Lokesh Gupta 
+    // Hash/salt Code from Lokesh Gupta 
     // from http://howtodoinjava.com/security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
     private static String generateStorngPasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException
     {

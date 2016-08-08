@@ -20,6 +20,8 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -56,23 +58,31 @@ public class SleepController implements Initializable {
         datePicker = new DatePicker();
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
-        sleepChart = new BarChart<String,Number>(xAxis,yAxis);
-        xAxis.setLabel("Date");       
-        yAxis.setLabel("Number of hours slept");
+        sleepChart = new BarChart<String, Number>(xAxis, yAxis);
+        xAxis.setLabel("Date");
+        yAxis.setLabel("Hours slept");
         series = new XYChart.Series<>();
-        series.setName("user's name");
         
+
 //        user.setName("hello");
     }
 
+    private void showError(String msg) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Error Dialog");
+        alert.setHeaderText("Error");
+        alert.setContentText(msg);
+
+        alert.showAndWait();
+    }
     void initData(User user) {
         this.user = user;
     }
 
     public void Generate(ActionEvent event) throws IOException, SQLException, NamingException {
-        Day[] week = new Day[7];
-        
-        // if a value was inputted, add day to database
+        if (event != null) {
+
+            // if a value was inputted, add day to database
 //        if (datePicker.getValue() != null && !hours.getText().isEmpty()) {
 //            // add day if not empty
 //            addDate();
@@ -83,23 +93,23 @@ public class SleepController implements Initializable {
 //        } catch (SQLException | NamingException SQLException) {
 //            System.err.println("Error getting recent sleep times. Sorry.");
 //        }
-
 //        while (!latest.isEmpty()) {
 //            final SleepTime s = latest.get(0);
 //            latest.remove(0);
 //            series.getData().add(new XYChart.Data(s.getDate(), s.getHours()));
 //        }
-        makeChart();
+            makeChart();
+        }
     }
 
     private void addDate() {
         LocalDate aDate = datePicker.getValue();
         System.err.println("Selected date: " + aDate);
         Double hoursSlept = Double.parseDouble(hours.getText());
-        
+
         /// not completed yet
     }
-    
+
     public class Day {
 
         public Day(String date, int hours) {
@@ -122,7 +132,7 @@ public class SleepController implements Initializable {
                 datePicker.requestFocus();
             }
         });
-        
+
     }
 
     public void makeChart() {
@@ -141,13 +151,28 @@ public class SleepController implements Initializable {
 //            series.getData().add(new XYChart.Data(s.getDate(), s.getHours()));
 //        }
 
-        // we only need 1 series of data
-        Double hoursSlept = Double.parseDouble(hours.getText());
-        LocalDate aDate = datePicker.getValue();
-        System.out.println("Selected date: " + aDate);
-        series.getData().add(new XYChart.Data(aDate.toString(), hoursSlept));
-        sleepChart.getData().add(series);
-        stage.show();
+        if (!hours.getText().isEmpty()) {
+            
+            Double hoursSlept = Double.parseDouble(hours.getText());
+
+            if (hoursSlept >= 0 && hoursSlept <= 24 ) {
+
+                if (datePicker.getValue() != null) {
+                    // we only need 1 series of data
+
+                    LocalDate aDate = datePicker.getValue();
+                    System.out.println("Selected date: " + aDate);
+                    series.getData().add(new XYChart.Data(aDate.toString(), hoursSlept));
+                    sleepChart.getData().add(series);
+                    stage.show();
+                } else {
+                    showError("Date cannot be blank");
+                }
+            } else {
+                showError("Invalid hours slept");
+            }
+        }
+
     }
 
 }
