@@ -9,5 +9,6 @@ A java applet that tracks your health
 
 ---
 *Joseph*: Implemented test classes, ability to add data to bar graph. Connection from log in to sleep controller seems to not work…
+
 ---
 *Joseph*: Log in to sleep controller functional. Implemented salting and hasing of passwords. Reading from and writing to database now works too.
