@@ -2,11 +2,12 @@ package healthe;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
@@ -18,143 +19,148 @@ import org.postgresql.ds.PGPoolingDataSource;
  *
  * @author team alpha
  */
-
 // This class sends and receives SleepTime to and from the database
 public class SleepTimeBean implements Serializable {
-    @Resource(name="derby/ics491")
-    
+
+    @Resource(name = "derby/ics491")
+
     private DataSource ds;
-    
+
 //    This method sets up the datasource and returns a data source
     public static DataSource getDS() throws SQLException {
         PGPoolingDataSource ds = new PGPoolingDataSource();
 
-        ds.setDatabaseName("ics491");
-        ds.setUser("DBUSER");
-        ds.setPassword("ics491"); // need to encrypt this
+        ds.setDatabaseName("postgres");
+        ds.setUser("josephli");
         ds.setServerName("localhost");
-        ds.setPortNumber(1527);
-        ds.setSsl(true);
+        ds.setPortNumber(5432);
+//        ds.setSsl(true);
 //        ds.setSslfactory(classname);
 
         return ds;
     }
-            
-    /** This method sends an SleepTimeBean to the database
+
+    /**
+     * This method sends an SleepTimeBean to the database
      *
      * @param hours is number of hours slept
-     * @param aDate is the date of record
+     * @param entered_date is the date of record
      * @throws java.sql.SQLException
      * @throws javax.naming.NamingException
      */
-    public void addSleepTime(String name, int hours, Date aDate) throws SQLException, NamingException{
+    public void addSleepTime(String name, LocalDate entered_date, Double hours) throws SQLException, NamingException {
         try {
             ds = getDS();
-            if(ds==null)
+            if (ds == null) {
                 throw new SQLException("Can't get data source");
-            //get database connection
-            Connection con = ds.getConnection();
-            if(con==null)
-                throw new SQLException("Can't get database connection");
+            }
+            try ( //get database connection
+                    Connection con = ds.getConnection()) {
+                if (con == null) {
+                    throw new SQLException("Can't get database connection");
+                }
 
-            String s = "INSERT INTO SleepTime(name,adate,hours) "
-                    + "values(?, ?, ?)";
-            PreparedStatement ps = con.prepareStatement(s); 
-            ps.setString(1, name);
-            ps.setDate(2, aDate);
-            ps.setInt(3, hours);
-            
-            ps.executeUpdate();
-            System.out.println("Values inserted");
-            con.close();
-        }
-        catch(Exception SQLException) {
+                String s = "INSERT INTO \"SleepTime\" (name, entered_date, hours) VALUES (?, ?, ?)";
+                PreparedStatement ps = con.prepareStatement(s);
+                Date date = Date.valueOf(entered_date);
+                ps.setString(1, name);
+                ps.setObject(2, date);
+                ps.setDouble(3, hours);
+
+                ps.executeUpdate();
+//                ps.closeOnCompletion();
+                System.out.println("Values inserted");
+            }
+        } catch (Exception SQLException) {
+            System.out.println(SQLException);
             dropTable();
             createTable();
         }
+
     }
-    
+
     public void dropTable() throws SQLException {
         Connection con = ds.getConnection();
-        if(con==null)
+        if (con == null) {
             throw new SQLException("Can't get database connection");
-        Statement s = con.createStatement();
-           try {
-               String s1 = ("DROP TABLE SleepTime");
-               s.executeUpdate(s1);
-               System.out.println("Table dropped");
-           }
-           catch (Exception SQL_Exception){
-               System.out.println("Error, table not dropped.");
-           }
-    }
-    
-    public void createTable() throws SQLException {
-        Connection con = ds.getConnection();
-        if(con==null)
-            throw new SQLException("Can't get database connection");
+        }
         Statement s = con.createStatement();
         try {
-            String s2 = ("Create table SleepTime\n(" +
-                        "user TEXT not null primary key,\n" +
-                        "date DATE not null,\n" +
-                        "hours NUMERIC not null\n" +
-                        ")");
-            s.executeUpdate(s2);
-            System.out.println("Table created");
+            String s1 = ("DROP TABLE \"SleepTime\"");
+            s.executeUpdate(s1);
+            System.err.println("Table dropped");
+        } catch (Exception SQL_Exception) {
+            System.out.println("Error, table not dropped.");
         }
-        catch (Exception SQL_Exception){
+        s.close();
+        con.close();
+    }
+
+    public void createTable() throws SQLException {
+        Connection con = ds.getConnection();
+        if (con == null) {
+            throw new SQLException("Can't get database connection");
+        }
+        Statement s = con.createStatement();
+        try {
+            String s2 = ("CREATE TABLE \"SleepTime\" (\n"
+                    + "	name text not null, \n"
+                    + "	entered_date date not null, \n"
+                    + "	hours NUMERIC not null );");
+            s.executeUpdate(s2);
+            System.err.println("Table created");
+        } catch (Exception SQL_Exception) {
+            System.out.println(SQL_Exception);
             System.out.println("Error, table not created.");
         }
     }
-    
-    
-    public List<SleepTime> getRecentSleepTime(String name) throws SQLException, NamingException{
-        return getSleepTimeList(name);
-    }
+
 //    this method retrieves the data from the database in the form of a list
-    private List<SleepTime> getSleepTimeList(String name) throws SQLException, NamingException{
+    public List<SleepTime> getSleepTimeList(String name) throws SQLException, NamingException {
         System.out.println("Get SleepTime list");
         List<SleepTime> list = new ArrayList<SleepTime>();
         PreparedStatement stmt = null;
         try {
             ds = getDS();
-            if(ds==null)
+            if (ds == null) {
                 throw new SQLException("Can't get data source");
+            }
 
             try ( //connect to database
                     Connection con = ds.getConnection()) {
-                if(con==null)
+                if (con == null) {
                     throw new SQLException("Can't get database connection");
-                
-                String query = "SELECT * FROM SleepTime WHERE ? ORDER BY aDate DESC LIMIT 7";
-                
+                }
+
+                String query = "SELECT * FROM \"SleepTime\" WHERE name = ? ORDER BY entered_date ASC LIMIT 7";
+
                 stmt = con.prepareStatement(query);
                 stmt.setString(1, name);
                 //get data from database
                 ResultSet result = stmt.executeQuery();
-                
+
                 int g = 0;
-                while(result.next() && g < 6){
-                    SleepTime sleep = new SleepTime(result.getString("user"), 
-                            result.getDate("adate"),
-                            result.getDouble("hours"));
+                while (result.next() && g < 6) {
                     
+                    Date date = (java.sql.Date) result.getObject("entered_date");
+                    Double hours = result.getDouble("hours");
+                    SleepTime sleep = new SleepTime(result.getString("name"), date, result.getDouble("hours"));
+                    System.out.println(sleep.getDate() + ": " + sleep.getHours());
                     list.add(sleep);
                     g++;
                 }
             }
-        }
-        catch (Exception SQLException) {
-            dropTable();
-            createTable();
-        }
-        finally {
-            if (stmt!=null)
+        } catch (Exception SQLException) {
+            System.err.println(SQLException);
+//            dropTable();
+//            createTable();
+        } finally {
+            if (stmt != null) {
                 stmt.close();
+            }
         }
         System.out.println("List returned");
-            
+
         return list;
     }
 }

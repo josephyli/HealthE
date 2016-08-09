@@ -1,6 +1,7 @@
 package healthe;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 /**
  *
@@ -8,19 +9,19 @@ import java.sql.Date;
  */
 
 public class SleepTime {
-    private Double hours;
-    private Date aDate;
-    private String name;
+    private Double hours = null;
+    private Date aDate = null;
+    private final String name;
 
     public Double getHours() {
         return hours;
     }
 
-    public void setHours(Double hours) {
-        this.hours = hours;
+    public void setHours(Double xhours) {
+        this.hours = xhours;
     }
     
-    public Date aDate(){
+    public Date getDate(){
         return aDate;
     }
 
