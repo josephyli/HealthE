@@ -82,6 +82,7 @@ public class SleepController implements Initializable {
     void initData(User userx) {
         this.user = userx;
         status.setText("Welcome, " + user.getName() + "!");
+        makeChart();
     }
 
     public void Generate(ActionEvent event) throws IOException, SQLException, NamingException {
@@ -126,7 +127,7 @@ public class SleepController implements Initializable {
                     } catch (NamingException ex) {
                         Logger.getLogger(SleepController.class.getName()).log(Level.SEVERE, null, ex);
                     }
-//                    makeChart();
+                    makeChart();
                 } else {
                     showError("Date cannot be blank");
                 }
