@@ -55,9 +55,9 @@ public class SleepController implements Initializable {
     private Label status;
 
     private User user;
-    private SleepTimeBean sleepBean;
-    private XYChart.Series series = new XYChart.Series();
-
+    private final SleepTimeBean sleepBean;
+    private XYChart.Series series;
+    private boolean firstLaunch;
     public SleepController() {
         sleepBean = new SleepTimeBean();
         datePicker = new DatePicker();
@@ -82,34 +82,21 @@ public class SleepController implements Initializable {
     void initData(User userx) {
         this.user = userx;
         status.setText("Welcome, " + user.getName() + "!");
+        firstLaunch = true;
         makeChart();
+        firstLaunch = false;
     }
 
-    public void Generate(ActionEvent event) throws IOException, SQLException, NamingException {
+    public void generate(ActionEvent event) throws IOException, SQLException, NamingException {
         if (event != null) {
-
-            // if a value was inputted, add day to database
-//        if (datePicker.getValue() != null && !hours.getText().isEmpty()) {
-//            // add day if not empty
-//            addDate();
-//        }
-//        try {
-//            // testing the user "hello"... not working yet
-//            latest = sleepBean.getSleepTimeList("hello");
-//        } catch (SQLException | NamingException SQLException) {
-//            System.err.println("Error getting recent sleep times. Sorry.");
-//        }
-//        while (!latest.isEmpty()) {
-//            final SleepTime s = latest.get(0);
-//            latest.remove(0);
-//            series.getData().add(new XYChart.Data(s.getDate(), s.getHours()));
-//        }
             makeChart();
         }
     }
 
     public void addDate() {
-        if (!hours.getText().isEmpty() && hours.getText() != null) {
+        if (hours.getText().isEmpty() || datePicker.getValue() == null) {
+            showError("Do not leave any blanks. Please fill out the date and number of hours slept");
+        } else {
 
             Double hoursSlept = Double.parseDouble(hours.getText());
 
@@ -117,14 +104,11 @@ public class SleepController implements Initializable {
 
                 if (datePicker.getValue() != null) {
                     // we only need 1 series of data
-
                     LocalDate aDate = datePicker.getValue();
-                    System.out.println("Selected date: " + aDate);
+
                     try {
                         sleepBean.addSleepTime(user.getName(), aDate, hoursSlept);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(SleepController.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (NamingException ex) {
+                    } catch (SQLException | NamingException ex) {
                         Logger.getLogger(SleepController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     makeChart();
@@ -137,60 +121,57 @@ public class SleepController implements Initializable {
         }
     }
 
-    public class Day {
-
-        public Day(String date, int hours) {
-            String currentDate = date;
-            int sleepTime = hours;
-        }
-    }
-
-    private void setUser(User user) {
-        this.user = user;
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
+        @Override
+        public void initialize
+        (URL url, ResourceBundle rb
+        
+            ) {
 
         Platform.runLater(new Runnable() {
-            @Override
+                @Override
 
-            public void run() {
-                datePicker.requestFocus();
-            }
-        });
-    }
+                public void run() {
+                    datePicker.requestFocus();
+                }
+            });
+        }
+
+    
 
     public void makeChart() {
         List<SleepTime> list = null;
-
         try {
-            // testing the user "hello"... not working yet
-            list = sleepBean.getSleepTimeList("hello");
+            series.getData().removeAll();
+//            series.getData().clear();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        try {
+            list = sleepBean.getSleepTimeList(user.getName());
         } catch (SQLException | NamingException SQLException) {
             System.err.println("Error getting recent sleep times. Sorry.");
         }
 
-        while (!list.isEmpty()) {
+        while (!list.isEmpty() && list != null) {
             final SleepTime s = list.get(0);
             list.remove(0);
-            System.out.println(s.getDate());
             series.getData().add(new XYChart.Data(s.getDate().toString(), s.getHours()));
         }
         try {
             if (!series.getData().isEmpty()) {
-                sleepChart.getData().add(series);
-                series.setName(user.getName());
-                stage.show();
+                if (firstLaunch){
+                    sleepChart.getData().add(series);
+                    series.setName(user.getName());
+                }
+                
+                if (stage != null) {
+                    stage.show();
+                }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.err.println(e);
         }
 
-//        series.getData().add(new XYChart.Data(aDate.toString(), hoursSlept));
-//        sleepChart.getData().add(series);
-//        series.setName(user.getName());
-//        stage.show();
     }
 
 }

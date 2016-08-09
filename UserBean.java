@@ -6,7 +6,6 @@ package healthe;
  */
 
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,7 +23,7 @@ import org.postgresql.ds.PGPoolingDataSource;
  * @author team alpha
  */
 
-public class UserBean implements Serializable {
+public class UserBean {
     
     private DataSource ds;
     
@@ -54,7 +53,7 @@ public class UserBean implements Serializable {
         return ds;
     }
     
-    public boolean checkUsernameOnly(String name) throws SQLException {
+    public boolean userExistsAlready(String name) throws SQLException {
         PreparedStatement stmt = null;
         boolean nameFound = false;
         try {
@@ -79,6 +78,8 @@ public class UserBean implements Serializable {
                     System.out.println("Found");
                     break;                    
                 }
+                
+                result.close();
             }
         }
         catch (Exception SQLException) {
@@ -119,6 +120,8 @@ public class UserBean implements Serializable {
                     System.out.println("Found");
                     break;                    
                 }
+                
+                result.close();
             }
         }
         catch (Exception SQLException) {
@@ -134,46 +137,7 @@ public class UserBean implements Serializable {
         
     }
     
-    private List<User> getUserList() throws SQLException, NamingException{
-        System.out.println("Get user list");
-        List<User>userNameList = new ArrayList<>();
-        PreparedStatement stmt = null;
-        try {
-            ds = getDS();
-            if(ds==null)
-                throw new SQLException("Can't get data source");
 
-            //connect to database 
-            Connection con = ds.getConnection();
-            if(con==null)
-                throw new SQLException("Can't get database connection");
-
-            String query = "SELECT * FROM \"Users\" ORDER BY name ASC";
-            
-            stmt = con.prepareStatement(query);
-
-            //get data from database
-            ResultSet result = stmt.executeQuery();
-            
-//            while(result.next()){
-//                User user;
-//                user = new User(......);
-//
-//                userNameList.add(user);
-//            }
-            con.close();
-        }
-        catch (Exception SQLException) {
-            
-        }
-        finally {
-            if (stmt!=null)
-                stmt.close();
-        }
-        System.out.println("List returned");
-            
-        return userNameList;
-    }
     /**
      * Creates a new instance of UserBean
      * @throws java.sql.SQLException
@@ -267,6 +231,9 @@ public class UserBean implements Serializable {
         }
         catch (Exception SQL_Exception){
             System.out.println("Error, table not created.");
+        }
+        finally {
+            con.close();
         }
     }
     

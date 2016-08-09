@@ -69,10 +69,10 @@ public class SleepTimeBean implements Serializable {
 
                 ps.executeUpdate();
 //                ps.closeOnCompletion();
-                System.out.println("Values inserted");
+                System.err.println("Values inserted");
             }
         } catch (Exception SQLException) {
-            System.out.println(SQLException);
+            System.err.println(SQLException);
             dropTable();
             createTable();
         }
@@ -90,7 +90,7 @@ public class SleepTimeBean implements Serializable {
             s.executeUpdate(s1);
             System.err.println("Table dropped");
         } catch (Exception SQL_Exception) {
-            System.out.println("Error, table not dropped.");
+            System.err.println("Error, table not dropped.");
         }
         s.close();
         con.close();
@@ -110,14 +110,14 @@ public class SleepTimeBean implements Serializable {
             s.executeUpdate(s2);
             System.err.println("Table created");
         } catch (Exception SQL_Exception) {
-            System.out.println(SQL_Exception);
-            System.out.println("Error, table not created.");
+            System.err.println(SQL_Exception);
+            System.err.println("Error, table not created.");
         }
     }
 
 //    this method retrieves the data from the database in the form of a list
     public List<SleepTime> getSleepTimeList(String name) throws SQLException, NamingException {
-        System.out.println("Get SleepTime list");
+        System.err.println("Get SleepTime list");
         List<SleepTime> list = new ArrayList<SleepTime>();
         PreparedStatement stmt = null;
         try {
@@ -132,7 +132,7 @@ public class SleepTimeBean implements Serializable {
                     throw new SQLException("Can't get database connection");
                 }
 
-                String query = "SELECT * FROM \"SleepTime\" WHERE name = ? ORDER BY entered_date ASC LIMIT 7";
+                String query = "SELECT * FROM \"SleepTime\" WHERE name = ? AND entered_date > current_date - interval '7' day ORDER BY entered_date ASC LIMIT 7";
 
                 stmt = con.prepareStatement(query);
                 stmt.setString(1, name);
@@ -140,12 +140,11 @@ public class SleepTimeBean implements Serializable {
                 ResultSet result = stmt.executeQuery();
 
                 int g = 0;
-                while (result.next() && g < 6) {
+                while (result.next() && g <= 6) {
                     
                     Date date = (java.sql.Date) result.getObject("entered_date");
                     Double hours = result.getDouble("hours");
                     SleepTime sleep = new SleepTime(result.getString("name"), date, result.getDouble("hours"));
-                    System.out.println(sleep.getDate() + ": " + sleep.getHours());
                     list.add(sleep);
                     g++;
                 }
@@ -159,7 +158,7 @@ public class SleepTimeBean implements Serializable {
                 stmt.close();
             }
         }
-        System.out.println("List returned");
+        System.err.println("List returned");
 
         return list;
     }

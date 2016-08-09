@@ -61,12 +61,6 @@ public class loginController implements Initializable {
             User user = new User();
             user.setName(name);
             showSleepTimeDialog(user);
-//            Parent root = FXMLLoader.load(getClass().getResource("sleep.fxml"));
-//
-//            Scene scene = new Scene(root);
-//            Stage stage = new Stage();
-//            stage.setScene(scene);
-//            stage.show();
         } else {
             status.setText("Login Failed.  Invalid Username/Password");
         }
@@ -101,7 +95,7 @@ public class loginController implements Initializable {
         String originalPassword = txtPass.getText();
         String securedPassword = generateStorngPasswordHash(originalPassword);
 
-        if (userBean.checkUsernameOnly(name)) {
+        if (userBean.userExistsAlready(name)) {
             status.setText("Register Failed.  Username already exists.");
         } else if (originalPassword.equalsIgnoreCase("")) {
             status.setText("Register Failed.  Password cannot be blank.");
